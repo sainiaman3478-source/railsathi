@@ -12,15 +12,13 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
-      - name: Fix Android Project
+      - name: Re-create android project
         run: |
-          if [! -d "android" ]; then
-            flutter create. --platforms=android --project-name railsathi
-          fi
-          MANIFEST="android/app/src/main/AndroidManifest.xml"
-          if! grep -q "INTERNET" "$MANIFEST"; then
-            sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET" \/>\n <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" \/>\n <application/' "$MANIFEST"
-          fi
+          rm -rf android
+          flutter create. --platforms=android --project-name railsathi
+      - name: Add Internet Permission
+        run: |
+          python3 -c "import pathlib; p=pathlib.Path('android/app/src/main/AndroidManifest.xml'); t=p.read_text(); t=t.replace('<application', '<uses-permission android:name=\"android.permission.INTERNET\" />\n <uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />\n <application'); p.write_text(t)"
       - run: flutter pub get
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
