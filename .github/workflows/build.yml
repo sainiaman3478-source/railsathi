@@ -21,7 +21,6 @@ jobs:
           if! grep -q "INTERNET" "$MANIFEST"; then
             sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET" \/>\n <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" \/>\n <application/' "$MANIFEST"
           fi
-          cat "$MANIFEST" | grep permission || echo "permission added"
       - run: flutter pub get
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
