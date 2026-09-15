@@ -6,7 +6,8 @@ void main() => runApp(const RailSathiApp());
 
 class RailSathiApp extends StatelessWidget {
   const RailSathiApp({super.key});
-  @override Widget build(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true, primaryColor: const Color(0xFF0F52BA), scaffoldBackgroundColor: const Color(0xFFF6F7FB)),
@@ -58,9 +59,9 @@ class _TrainSearchRealState extends State<TrainSearchReal> {
 
   Future<void> search() async {
     setState(() {
-      loading=true;
-      msg='Search ho raha hai...';
-      trains=[];
+      loading = true;
+      msg = 'Search ho raha hai...';
+      trains = [];
     });
     try{
       final date = DateTime.now().toIso8601String().split('T')[0];
@@ -68,7 +69,7 @@ class _TrainSearchRealState extends State<TrainSearchReal> {
       final res = await http.get(url, headers: {'User-Agent':'Mozilla/5.0'}).timeout(const Duration(seconds: 15));
       if(res.statusCode==200){
         final d=jsonDecode(res.body);
-        final list = d['data'] as List??? [];
+        final list = (d['data'] as List?)?? [];
         setState(() {
           trains = list;
           msg = trains.isEmpty? 'Koi train nahi mili' : '${trains.length} REAL trains mili';
@@ -89,4 +90,4 @@ class PNRScreen extends StatelessWidget { const PNRScreen({super.key}); @overrid
 class LiveStatusScreen extends StatelessWidget { const LiveStatusScreen({super.key}); @override Widget build(BuildContext context){ return const Scaffold(body: Center(child: Text('Live Screen - next step'))); } }
 class BheedMeterScreen extends StatelessWidget { const BheedMeterScreen({super.key}); @override Widget build(BuildContext context){ return Scaffold(appBar: AppBar(title: const Text('Bheed Meter')), body: const Center(child: Text('Next step me REAL banayenge'))); } }
 class AlarmScreen extends StatelessWidget { const AlarmScreen({super.key}); @override Widget build(BuildContext context){ return Scaffold(appBar: AppBar(title: const Text('Station Alarm')), body: const Center(child: Text('Next step'))); } }
-class AccountScreen extends StatelessWidget { const AccountScreen({super.key}); @override Widget build(BuildContext context){ return const Scaffold(body: Center(child: Text('RailSathi v4.1\nTrain Search REAL\nBuild Fix - GREEN'))); } }
+class AccountScreen extends StatelessWidget { const AccountScreen({super.key}); @override Widget build(BuildContext context){ return const Scaffold(body: Center(child: Text('RailSathi v4.1\nTrain Search REAL - GREEN'))); } }
