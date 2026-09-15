@@ -2,8 +2,33 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-//... tera pura green wala code same...
-// Bas HomeDashboard ke _card onTap me ye jod diya hai
+void main() => runApp(const RailSathiApp());
+
+class RailSathiApp extends StatelessWidget {
+  const RailSathiApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(useMaterial3: true, primaryColor: const Color(0xFF0F52BA), scaffoldBackgroundColor: const Color(0xFFF6F7FB)),
+      home: const SplashScreen(),
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget { const SplashScreen({super.key}); @override State<SplashScreen> createState() => _SplashScreenState(); }
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() { super.initState(); Future.delayed(const Duration(seconds: 2), (){ if(mounted) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> const MainScreen())); }); }
+  @override Widget build(BuildContext context) { return const Scaffold(backgroundColor: Colors.white, body: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.train_rounded, size: 90, color: Color(0xFF0F52BA)), SizedBox(height: 12), Text('RailSathi', style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Color(0xFF0A2A6B))), Text('Bharat Ki Apni Train App', style: TextStyle(color: Colors.grey))]))); }
+}
+
+class MainScreen extends StatefulWidget { const MainScreen({super.key}); @override State<MainScreen> createState() => _MainScreenState(); }
+class _MainScreenState extends State<MainScreen> {
+  int _i=0;
+  final _pages = const [HomeDashboard(), PNRScreen(), LiveStatusScreen(), AccountScreen()];
+  @override Widget build(BuildContext context) { return Scaffold(body: _pages[_i], bottomNavigationBar: NavigationBar(selectedIndex: _i, onDestinationSelected: (v)=>setState(()=>_i=v), destinations: const [NavigationDestination(icon: Icon(Icons.home), label: 'Home'), NavigationDestination(icon: Icon(Icons.confirmation_number_outlined), label: 'PNR'), NavigationDestination(icon: Icon(Icons.train), label: 'Live'), NavigationDestination(icon: Icon(Icons.person_outline), label: 'Account')])); }
+}
 
 class HomeDashboard extends StatelessWidget {
   const HomeDashboard({super.key});
@@ -28,32 +53,31 @@ class HomeDashboard extends StatelessWidget {
   static Widget _uniqueCard(BuildContext ctx, String title, String sub, IconData ic, Color c, Widget p){ return Expanded(child: InkWell(onTap: ()=>Navigator.push(ctx, MaterialPageRoute(builder: (_)=>p)), child: Container(height: 110, padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: c.withOpacity(0.12), borderRadius: BorderRadius.circular(16), border: Border.all(color: c.withOpacity(0.3))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(ic, color: c), const SizedBox(height: 6), Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: c)), Text(sub, style: const TextStyle(fontSize: 10))])))); }
 }
 
-// YAHAN SE NAYA REAL CODE SHURU
+// --- REAL TRAIN SEARCH ---
 class TrainSearchReal extends StatefulWidget { const TrainSearchReal({super.key}); @override State<TrainSearchReal> createState() => _TrainSearchRealState(); }
 class _TrainSearchRealState extends State<TrainSearchReal> {
   final from = TextEditingController(text: 'NDLS');
   final to = TextEditingController(text: 'AGC');
-  List trains = []; bool loading = false;
+  List trains = []; bool loading = false; String msg='NDLS se AGC search karke dekho';
   Future<void> search() async {
-    setState(()=>loading=true);
+    setState(()=>{loading=true, msg='Search ho raha hai...'});
     try{
       final date = DateTime.now().toIso8601String().split('T')[0];
-      final res = await http.get(Uri.parse('https://ct-api.confirmtkt.com/api/trains/v1/search?from=${from.text}&to=${to.text}&date=$date'));
-      if(res.statusCode==200){ final d=jsonDecode(res.body); setState(()=>trains=d['data']??[]); }
-    }catch(e){ ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'))); }
+      final url = Uri.parse('https://ct-api.confirmtkt.com/api/trains/v1/search?from=${from.text.trim().toUpperCase()}&to=${to.text.trim().toUpperCase()}&date=$date');
+      final res = await http.get(url);
+      if(res.statusCode==200){
+        final d=jsonDecode(res.body);
+        setState(()=>trains=d['data']??[]);
+        setState(()=>msg=trains.isEmpty?'Koi train nahi mili - code check karo':'${trains.length} trains mili');
+      } else { setState(()=>msg='Error: ${res.statusCode}'); }
+    }catch(e){ setState(()=>msg='Error: $e'); }
     setState(()=>loading=false);
   }
-  @override Widget build(BuildContext context){ return Scaffold(appBar: AppBar(title: const Text('REAL Train Search'), backgroundColor: const Color(0xFF0F52BA), foregroundColor: Colors.white), body: Padding(padding: const EdgeInsets.all(16), child: Column(children: [TextField(controller: from, decoration: const InputDecoration(labelText: 'From NDLS/AOH', border: OutlineInputBorder())), const SizedBox(height:10), TextField(controller: to, decoration: const InputDecoration(labelText: 'To AGC/DLI', border: OutlineInputBorder())), const SizedBox(height:10), SizedBox(width: double.infinity, height: 45, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F52BA)), onPressed: search, child: loading?const CircularProgressIndicator(color: Colors.white):const Text('Search REAL', style: TextStyle(color: Colors.white)))), const SizedBox(height:10), Expanded(child: ListView.builder(itemCount: trains.length, itemBuilder: (c,i){ final t=trains[i]; return Card(child: ListTile(title: Text('${t['number']} ${t['name']}'), subtitle: Text('${t['from']} ${t['departure']} -> ${t['to']} ${t['arrival']}'))); }))]))); }
+  @override Widget build(BuildContext context){ return Scaffold(appBar: AppBar(title: const Text('REAL Train Search'), backgroundColor: const Color(0xFF0F52BA), foregroundColor: Colors.white), body: Padding(padding: const EdgeInsets.all(16), child: Column(children: [TextField(controller: from, decoration: const InputDecoration(labelText: 'From - NDLS/AOH/DLI', border: OutlineInputBorder())), const SizedBox(height:10), TextField(controller: to, decoration: const InputDecoration(labelText: 'To - AGC/LKO/CNB', border: OutlineInputBorder())), const SizedBox(height:10), SizedBox(width: double.infinity, height: 45, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F52BA)), onPressed: loading?null:search, child: loading?const SizedBox(height: 20, width:20, child:CircularProgressIndicator(color: Colors.white, strokeWidth: 2)):const Text('Search REAL Trains', style: TextStyle(color: Colors.white)))), const SizedBox(height:10), Text(msg, style: const TextStyle(color: Colors.grey)), const SizedBox(height:10), Expanded(child: ListView.builder(itemCount: trains.length, itemBuilder: (c,i){ final t=trains[i]; return Container(margin: const EdgeInsets.only(bottom:8), padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('${t['number']??''} ${t['name']??''}', style: const TextStyle(fontWeight: FontWeight.bold)), const SizedBox(height:4), Text('${t['from']??''} ${t['departure']??''} -> ${t['to']??''} ${t['arrival']??''} ${t['duration']??''}', style: const TextStyle(fontSize: 12, color: Colors.grey))])) ; }))]))); }
 }
-class BheedMeterScreen extends StatelessWidget { const BheedMeterScreen({super.key}); @override Widget build(BuildContext context){ return Scaffold(appBar: AppBar(title: const Text('Bheed Meter')), body: const Center(child: Text('Firebase jodenge next step me'))); } }
-class AlarmScreen extends StatelessWidget { const AlarmScreen({super.key}); @override Widget build(BuildContext context){ return Scaffold(appBar: AppBar(title: const Text('Station Alarm')), body: const Center(child: Text('Alarm logic next step'))); } }
-class PNRScreen extends StatelessWidget { const PNRScreen({super.key}); @override Widget build(BuildContext context){ return const Scaffold(body: Center(child: Text('PNR - next step me real'))); } }
-class LiveStatusScreen extends StatelessWidget { const LiveStatusScreen({super.key}); @override Widget build(BuildContext context){ return const Scaffold(body: Center(child: Text('Live - next step'))); } }
-class AccountScreen extends StatelessWidget { const AccountScreen({super.key}); @override Widget build(BuildContext context){ return const Scaffold(body: Center(child: Text('RailSathi v4.1 - Train Search REAL'))); } }
 
-// Splash aur MainScreen wahi rakho jo tere green wale me tha
-class RailSathiApp extends StatelessWidget { const RailSathiApp({super.key}); @override Widget build(BuildContext context) { return MaterialApp(debugShowCheckedModeBanner: false, theme: ThemeData(useMaterial3: true, primaryColor: const Color(0xFF0F52BA), scaffoldBackgroundColor: const Color(0xFFF6F7FB)), home: const SplashScreen()); } }
-class SplashScreen extends StatefulWidget { const SplashScreen({super.key}); @override State<SplashScreen> createState() => _SplashScreenState(); }
-class _SplashScreenState extends State<SplashScreen> { @override void initState() { super.initState(); Future.delayed(const Duration(seconds: 2), (){ if(mounted) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> const MainScreen())); }); } @override Widget build(BuildContext context) { return const Scaffold(backgroundColor: Colors.white, body: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.train_rounded, size: 90, color: Color(0xFF0F52BA)), SizedBox(height: 12), Text('RailSathi', style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Color(0xFF0A2A6B))), Text('Bharat Ki Apni Train App', style: TextStyle(color: Colors.grey))]))); } }
-class MainScreen extends StatefulWidget { const MainScreen({super.key}); @override State<MainScreen> createState() => _MainScreenState(); }
-class _MainScreenState extends State<MainScreen> { int _i=0; final _pages = const [HomeDashboard(), PNRScreen(), LiveStatusScreen(), AccountScreen()]; @override Widget build(BuildContext context) { return Scaffold(body: _pages[_i], bottomNavigationBar: NavigationBar(selectedIndex: _i, onDestinationSelected: (v)=>setState(()=>_i=v), destinations: const [NavigationDestination(icon: Icon(Icons.home), label: 'Home'), NavigationDestination(icon: Icon(Icons.confirmation_number_outlined), label: 'PNR'), NavigationDestination(icon: Icon(Icons.train), label: 'Live'), NavigationDestination(icon: Icon(Icons.person_outline), label: 'Account')])); } }
+class PNRScreen extends StatelessWidget { const PNRScreen({super.key}); @override Widget build(BuildContext context){ return const Scaffold(body: Center(child: Text('PNR Screen - next step'))); } }
+class LiveStatusScreen extends StatelessWidget { const LiveStatusScreen({super.key}); @override Widget build(BuildContext context){ return const Scaffold(body: Center(child: Text('Live Screen - next step'))); } }
+class BheedMeterScreen extends StatelessWidget { const BheedMeterScreen({super.key}); @override Widget build(BuildContext context){ return Scaffold(appBar: AppBar(title: const Text('Bheed Meter')), body: const Center(child: Text('Next step me REAL banayenge'))); } }
+class AlarmScreen extends StatelessWidget { const AlarmScreen({super.key}); @override Widget build(BuildContext context){ return Scaffold(appBar: AppBar(title: const Text('Station Alarm')), body: const Center(child: Text('Next step'))); } }
+class AccountScreen extends StatelessWidget { const AccountScreen({super.key}); @override Widget build(BuildContext context){ return const Scaffold(body: Center(child: Text('RailSathi v4.1\nTrain Search REAL\nBuild Fix'))); } }
