@@ -12,11 +12,10 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
-      - name: Fix missing android folder
+      - name: Re-create android project
         run: |
-          if [! -d "android" ]; then
-            flutter create. --platforms=android --project-name railsathi
-          fi
+          rm -rf android
+          flutter create. --platforms=android --project-name railsathi
       - run: flutter pub get
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
