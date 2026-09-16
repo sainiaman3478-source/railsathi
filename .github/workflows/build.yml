@@ -16,7 +16,7 @@ jobs:
       - name: Force Android Manifest
         run: |
           rm -rf android
-          flutter create. --platforms=android
+          flutter create . --platforms=android
           python3 << 'PY'
           import pathlib
           p = pathlib.Path('android/app/src/main/AndroidManifest.xml')
