@@ -17,7 +17,7 @@ jobs:
         run: |
           rm -rf android
           rm -rf pubspec.lock
-          flutter create --platforms=android.
+          flutter create. --platforms=android
           flutter clean
           flutter pub get
       - name: Build APK
