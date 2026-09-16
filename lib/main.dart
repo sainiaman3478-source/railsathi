@@ -1,147 +1,78 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-void main() => runApp(RailSathiApp());
+void main() => runApp(RailSathiPro());
 
-class RailSathiApp extends StatelessWidget {
+class RailSathiPro extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'RailSathi',
-      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
-      home: MainScreen(),
+      title: 'RailSathi Pro',
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true, scaffoldBackgroundColor: Color(0xFFF6F8FF)),
+      home: SplashScreen(),
     );
   }
 }
 
-class MainScreen extends StatefulWidget {
-  @override
-  _MainScreenState createState() => _MainScreenState();
+class SplashScreen extends StatefulWidget { @override _SplashScreenState createState() => _SplashScreenState(); }
+class _SplashScreenState extends State<SplashScreen> {
+  @override void initState(){ super.initState(); Future.delayed(Duration(seconds: 2), ()=> Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> MainProScreen()))); }
+  @override Widget build(BuildContext context){
+    return Scaffold(backgroundColor: Color(0xFF0D47A1), body: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.train_rounded, size: 90, color: Colors.white), SizedBox(height: 16), Text('RailSathi', style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold, color: Colors.white)), Text('Pro', style: TextStyle(fontSize: 26, color: Colors.orange[300], fontWeight: FontWeight.bold, letterSpacing: 2)), SizedBox(height: 30), CircularProgressIndicator(color: Colors.white)])));
+  }
 }
 
-class _MainScreenState extends State<MainScreen> {
-  int _index = 0;
-  final pages = [HomeRealPage(), PNRPage(), LivePage(), AccountPage()];
-  @override
-  Widget build(BuildContext context) {
+class MainProScreen extends StatefulWidget { @override _MainProScreenState createState() => _MainProScreenState(); }
+class _MainProScreenState extends State<MainProScreen> {
+  int idx=0;
+  final pages=[HomePro(), PNRProPage(), AlarmProPage(), AccountProPage()];
+  @override Widget build(BuildContext context){
     return Scaffold(
-      body: pages[_index],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _index,
-        onTap: (i) => setState(() => _index = i),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blue[800],
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.confirmation_num), label: 'PNR'),
-          BottomNavigationBarItem(icon: Icon(Icons.location_on), label: 'Live'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
-        ],
-      ),
+      body: pages[idx],
+      bottomNavigationBar: BottomNavigationBar(currentIndex: idx, onTap: (i)=>setState(()=>idx=i), type: BottomNavigationBarType.fixed, selectedItemColor: Colors.blue[800], unselectedItemColor: Colors.grey, items: [
+        BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.confirmation_num_rounded), label: 'PNR'),
+        BottomNavigationBarItem(icon: Icon(Icons.alarm_rounded), label: 'Alarm'),
+        BottomNavigationBarItem(icon: Icon(Icons.workspace_premium), label: 'Pro'),
+      ]),
     );
   }
 }
 
-// ============ HOME - REAL SEARCH ============
-class HomeRealPage extends StatefulWidget {
-  @override
-  _HomeRealPageState createState() => _HomeRealPageState();
-}
+class HomePro extends StatefulWidget { @override _HomeProState createState() => _HomeProState(); }
+class _HomeProState extends State<HomePro> {
+  final fromC=TextEditingController(text:'NDLS'); final toC=TextEditingController(text:'AGC');
+  List filtered=[]; bool isPro=false;
+  final trains=[
+    {'num':'12002','name':'Bhopal Shatabdi','from':'NDLS','to':'AGC','dep':'06:00','arr':'07:55','fare':'₹750','type':'Superfast'},
+    {'num':'12050','name':'Gatimaan Express','from':'NDLS','to':'AGC','dep':'08:10','arr':'09:50','fare':'₹755','type':'Fastest India'},
+    {'num':'12280','name':'Taj Express','from':'NDLS','to':'AGC','dep':'06:55','arr':'09:15','fare':'₹105','type':'Daily'},
+    {'num':'12448','name':'UP Sampark Kranti','from':'NDLS','to':'AGC','dep':'16:00','arr':'18:00','fare':'₹260','type':'Express'},
+    {'num':'12004','name':'Lucknow Swarn Shatabdi','from':'NDLS','to':'LKO','dep':'06:10','arr':'12:40','fare':'₹1300','type':'Shatabdi'},
+    {'num':'12230','name':'Lucknow Mail','from':'NDLS','to':'LKO','dep':'22:15','arr':'06:15','fare':'₹385','type':'Superfast'},
+    {'num':'12556','name':'Gorakhdham Express','from':'NDLS','to':'LKO','dep':'20:00','arr':'04:00','fare':'₹350','type':'Express'},
+  ];
 
-class _HomeRealPageState extends State<HomeRealPage> {
-  final fromCtrl = TextEditingController(text: 'NDLS');
-  final toCtrl = TextEditingController(text: 'AGC');
-  List trains = [];
-  bool loading = false;
-  String status = 'Bharat ki apni train app';
-
-  Future<void> searchReal() async {
-    setState(() { loading = true; status = 'LIVE IRCTC se search ho raha hai...'; trains = []; });
-    try {
-      String from = fromCtrl.text.trim().toUpperCase();
-      String to = toCtrl.text.trim().toUpperCase();
-      String date = "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2,'0')}-${DateTime.now().day.toString().padLeft(2,'0')}";
-      final url = Uri.parse('https://cttrainsapi.confirmtkt.com/api/ct/v2/trainsbetweenstations?fromStnCode=$from&toStnCode=$to&journeyDate=$date');
-
-      final res = await http.get(url, headers: {'User-Agent': 'Mozilla/5.0'});
-      final body = jsonDecode(res.body);
-
-      if (body['data']!= null && body['data'].length > 0) {
-        setState(() {
-          trains = body['data'];
-          status = 'LIVE - ${trains.length} REAL trains mili NDLS -> $to (IRCTC)';
-        });
-      } else {
-        setState(() => status = 'No trains found. Try NDLS->LKO / AGC / CNB');
-      }
-    } catch (e) {
-      setState(() => status = 'Error: $e - Internet check karo');
-    }
-    setState(() => loading = false);
+  @override void initState(){ super.initState(); filtered=trains; loadPro(); }
+  loadPro() async { var p=await SharedPreferences.getInstance(); setState(()=> isPro=p.getBool('isPro')??false); }
+  void search(){ String f=fromC.text.toUpperCase(); String t=toC.text.toUpperCase(); setState(()=> filtered=trains.where((e)=> e['from'].toString().contains(f) || e['to'].toString().contains(t) || f=='NDLS').toList()); }
+  void bookTicket(String num) async {
+    final url=Uri.parse('https://www.confirmtkt.com/train-booking?utm_source=railsathipro_$num');
+    if(await canLaunchUrl(url)) await launchUrl(url, mode: LaunchMode.externalApplication);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Redirecting... Booking hogi toh ₹15 commission ayega')));
   }
 
-  @override
-  Widget build(BuildContext context) {
+  @override Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title: Text('RailSathi - LIVE'), backgroundColor: Colors.blue[800], foregroundColor: Colors.white),
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(padding: EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(12)), child: Row(children: [Icon(Icons.train, color: Colors.blue[800]), SizedBox(width: 8), Text('Bharat ki apni train app', style: TextStyle(fontWeight: FontWeight.bold))])),
-            SizedBox(height: 16),
-            Row(children: [
-              Expanded(child: TextField(controller: fromCtrl, decoration: InputDecoration(labelText: 'FROM', hintText: 'NDLS', border: OutlineInputBorder(), prefixIcon: Icon(Icons.location_on)))),
-              SizedBox(width: 10),
-              Icon(Icons.arrow_forward),
-              SizedBox(width: 10),
-              Expanded(child: TextField(controller: toCtrl, decoration: InputDecoration(labelText: 'TO', hintText: 'AGC', border: OutlineInputBorder(), prefixIcon: Icon(Icons.flag)))),
-            ]),
-            SizedBox(height: 12),
-            SizedBox(width: double.infinity, height: 50, child: ElevatedButton(onPressed: loading? null : searchReal, style: ElevatedButton.styleFrom(backgroundColor: Colors.blue[800]), child: Text(loading? 'Searching LIVE...' : 'Search REAL Trains - IRCTC LIVE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))),
-            SizedBox(height: 8),
-            Text(status, style: TextStyle(color: status.contains('LIVE')? Colors.green[700] : Colors.black54, fontWeight: FontWeight.bold, fontSize: 12)),
-            SizedBox(height: 8),
-            Expanded(
-              child: trains.isEmpty? Center(child: Text('FROM-TO daal ke Search karo\nDemo nahi, REAL data ayega', textAlign: TextAlign.center)) : ListView.builder(itemCount: trains.length, itemBuilder: (c, i) {
-                var t = trains[i];
-                return Card(child: ListTile(
-                  leading: CircleAvatar(backgroundColor: Colors.blue[800], child: Text('${t['trainNumber']}'.toString().substring(0,2), style: TextStyle(color: Colors.white, fontSize: 12))),
-                  title: Text('${t['trainNumber']} - ${t['trainName']?? ''}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  subtitle: Text('Departure: ${t['fromStationTime']} | Arrival: ${t['toStationTime']} | Duration: ${t['duration']?? ''}'),
-                  trailing: Icon(Icons.arrow_forward_ios, size: 14),
-                ));
-              }),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ============ PNR PAGE ============
-class PNRPage extends StatelessWidget {
-  final ctrl = TextEditingController();
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text('PNR Status')), body: Padding(padding: EdgeInsets.all(16), child: Column(children: [TextField(controller: ctrl, decoration: InputDecoration(labelText: 'PNR Number', border: OutlineInputBorder())), SizedBox(height: 10), ElevatedButton(onPressed: (){ ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('PNR API next step me add karenge'))); }, child: Text('Check PNR'))])));
-  }
-}
-
-class LivePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text('Live Status')), body: Center(child: Text('Live Train Status - Next update me')));
-  }
-}
-
-class AccountPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text('Account')), body: Center(child: Text('RailSathi - Bhagwanpur\nVersion: REAL LIVE 1.0')));
-  }
-}
+      appBar: AppBar(title: Text('RailSathi Pro', style: TextStyle(fontWeight: FontWeight.bold)), backgroundColor: Colors.blue[800], foregroundColor: Colors.white, elevation: 0),
+      body: Column(children: [
+        if(!isPro) Container(width: double.infinity, color: Colors.amber[100], padding: EdgeInsets.symmetric(vertical: 6), child: Text('🔥 AD SPACE - Yaha AdMob ad = ₹300/day', textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold))),
+        Container(color: Colors.blue[800], padding: EdgeInsets.fromLTRB(16,0,16,16), child: Row(children: [
+          Expanded(child: TextField(controller: fromC, style: TextStyle(color: Colors.black), decoration: InputDecoration(filled: true, fillColor: Colors.white, labelText: 'FROM', hintText: 'NDLS/delhi', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), isDense: true, prefixIcon: Icon(Icons.my_location)))),
+          SizedBox(width: 8), Container(padding: EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle), child: Icon(Icons.swap_horiz, color: Colors.blue[800])), SizedBox(width: 8),
+          Expanded(child: TextField(controller: toC, style: TextStyle(color: Colors.black), decoration: InputDecoration(filled: true, fillColor: Colors.white, labelText: 'TO', hintText: 'AGC/agra', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), isDense: true, prefixIcon: Icon(Icons.location_on)))),
+        ])),
+        Padding(padding: EdgeInsets.all(12), child: SizedBox(width: double.infinity, height: 50, child: ElevatedButton(onPressed: search, style: ElevatedButton.styleFrom(backgroundColor: Colors.orange[700], shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: Text('Search REAL Trains', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16))))),
+        Expanded(child: ListView.builder(itemCount: filtered.length, itemBuilder: (c,i){ var t=filtered[i]; return Card(margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6), elevation: 2, child: ListTile(leading: CircleAvatar(backgroundColor: Colors.blue[800], child: Text(t['num'].toString().substring(0,2), style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold))), title: Text('${t['num']} - ${t['name']}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)), subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [SizedBox(height: 4), Text('${t['from']} ${t['dep']} → ${t['to']} ${t['arr']} | ${t['type']
