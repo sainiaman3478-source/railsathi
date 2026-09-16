@@ -12,19 +12,48 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
-      - run: rm -rf android
-      - run: flutter create . --platforms=android --project-name railsathi
-      - name: Add Internet Permission
+
+      - name: Recreate Android with Space Fix
         run: |
-          python3 -c "
-          import pathlib
-          p = pathlib.Path('android/app/src/main/AndroidManifest.xml')
-          t = p.read_text()
-          if 'android.permission.INTERNET' not in t:
-              t = t.replace('<application', '<uses-permission android:name=\"android.permission.INTERNET\" />\n <uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />\n <application')
-              p.write_text(t)
-          print(p.read_text())
-          "
+          rm -rf android
+          flutter create . --platforms=android --project-name railsathi
+
+      - name: Add Internet Permission FORCE
+        run: |
+          cat > android/app/src/main/AndroidManifest.xml << 'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+              <application
+                  android:label="railsathi"
+                  android:name="${applicationName}"
+                  android:icon="@mipmap/ic_launcher">
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true"
+                      android:launchMode="singleTop"
+                      android:theme="@style/LaunchTheme"
+                      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+                      android:hardwareAccelerated="true"
+                      android:windowSoftInputMode="adjustResize">
+                      <meta-data
+                        android:name="io.flutter.embedding.android.NormalTheme"
+                        android:resource="@style/NormalTheme"
+                        />
+                      <intent-filter android:autoVerify="true">
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
+                      </intent-filter>
+                  </activity>
+                  <meta-data
+                      android:name="flutterEmbedding"
+                      android:value="2" />
+              </application>
+          </manifest>
+          EOF
+          echo "---- NEW MANIFEST ----"
+          cat android/app/src/main/AndroidManifest.xml
+
       - run: flutter pub get
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
