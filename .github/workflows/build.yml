@@ -13,7 +13,7 @@ jobs:
         with:
           flutter-version: '3.22.0'
       - run: rm -rf android
-      - run: flutter create. --platforms=android --project-name railsathi
+      - run: flutter create . --platforms=android --project-name railsathi
       - run: python3 -c "import pathlib; p=pathlib.Path('android/app/src/main/AndroidManifest.xml'); t=p.read_text(); t=t.replace('<application', '<uses-permission android:name=\"android.permission.INTERNET\" />\n <uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />\n <application'); p.write_text(t)"
       - run: flutter pub get
       - run: flutter build apk --release
