@@ -1,21 +1,24 @@
-name: railsathi
-description: RailSathi - Real Train Search App
+name: railsathi_pro
+description: Bharat ki apni train app - RailSathi Pro
 publish_to: 'none'
-version: 6.0.0+1
+version: 1.0.0+1
 
 environment:
-  sdk: '>=3.4.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.2
-  http: ^1.1.0
+  cupertino_icons: ^1.0.6
+  http: ^1.2.0
+  shared_preferences: ^2.2.2
+  url_launcher: ^6.2.5
+  google_mobile_ads: ^4.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
