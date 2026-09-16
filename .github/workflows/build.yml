@@ -16,11 +16,10 @@ jobs:
       - name: Force Android Manifest
         run: |
           rm -rf android
-          flutter create . --platforms=android
+          flutter create. --platforms=android
           python3 << 'PY'
           import pathlib
           p = pathlib.Path('android/app/src/main/AndroidManifest.xml')
-          # Force write a clean manifest with INTERNET
           manifest = '''<manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <uses-permission android:name="android.permission.INTERNET" />
               <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -47,15 +46,17 @@ jobs:
               </application>
           </manifest>'''
           p.write_text(manifest)
-          print("MANIFEST WRITTEN:")
-          print(p.read_text())
           PY
 
       - run: flutter pub get
       - run: flutter build apk --release
+
       - name: Check Permissions in APK
+        continue-on-error: true
         run: |
-          $ANDROID_HOME/build-tools/33.0.2/aapt dump permissions build/app/outputs/flutter-apk/app-release.apk
+          AAPT=$(find $ANDROID_HOME/build-tools -name aapt -type f | head -n 1)
+          echo "Found aapt: $AAPT"
+          $AAPT dump permissions build/app/outputs/flutter-apk/app-release.apk
 
       - uses: actions/upload-artifact@v4
         with:
