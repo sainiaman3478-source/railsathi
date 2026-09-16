@@ -13,13 +13,9 @@ jobs:
         with:
           flutter-version: '3.22.0'
 
-      - name: Recreate Android with Space Fix
+      - name: Fix Manifest Directly
         run: |
-          rm -rf android
-          flutter create . --platforms=android --project-name railsathi
-
-      - name: Add Internet Permission FORCE
-        run: |
+          mkdir -p android/app/src/main
           cat > android/app/src/main/AndroidManifest.xml << 'EOF'
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <uses-permission android:name="android.permission.INTERNET" />
@@ -36,22 +32,16 @@ jobs:
                       android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
                       android:hardwareAccelerated="true"
                       android:windowSoftInputMode="adjustResize">
-                      <meta-data
-                        android:name="io.flutter.embedding.android.NormalTheme"
-                        android:resource="@style/NormalTheme"
-                        />
+                      <meta-data android:name="io.flutter.embedding.android.NormalTheme" android:resource="@style/NormalTheme" />
                       <intent-filter android:autoVerify="true">
                           <action android:name="android.intent.action.MAIN"/>
                           <category android:name="android.intent.category.LAUNCHER"/>
                       </intent-filter>
                   </activity>
-                  <meta-data
-                      android:name="flutterEmbedding"
-                      android:value="2" />
+                  <meta-data android:name="flutterEmbedding" android:value="2" />
               </application>
           </manifest>
           EOF
-          echo "---- NEW MANIFEST ----"
           cat android/app/src/main/AndroidManifest.xml
 
       - run: flutter pub get
