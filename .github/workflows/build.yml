@@ -11,11 +11,17 @@ jobs:
           java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.5'
+          flutter-version: '3.22.3'
           channel: 'stable'
-      - run: flutter clean
-      - run: flutter pub get
-      - run: flutter build apk --release
+      - name: Fix Gradle Project
+        run: |
+          rm -rf android
+          rm -rf pubspec.lock
+          flutter create --platforms=android.
+          flutter clean
+          flutter pub get
+      - name: Build APK
+        run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
           name: app-release
