@@ -13,7 +13,6 @@ dependencies:
   http: ^1.2.0
   shared_preferences: ^2.2.2
   url_launcher: ^6.2.5
-  google_mobile_ads: ^4.0.0
 
 dev_dependencies:
   flutter_test:
