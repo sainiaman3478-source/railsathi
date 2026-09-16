@@ -13,14 +13,9 @@ jobs:
         with:
           flutter-version: '3.22.3'
           channel: 'stable'
-      - name: Fix Gradle & Build Pro
-        run: |
-          rm -rf android
-          rm -rf pubspec.lock
-          flutter create . --platforms=android --project-name railsathi_pro
-          flutter pub get
-          flutter build apk --release
+      - run: flutter pub get
+      - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
-          name: railsathi-pro-apk
+          name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk
