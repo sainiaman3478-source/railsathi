@@ -17,7 +17,7 @@ jobs:
         run: |
           rm -rf android
           rm -rf pubspec.lock
-          flutter create. --platforms=android --project-name railsathi_pro
+          flutter create . --platforms=android --project-name railsathi_pro
           flutter pub get
           flutter build apk --release
       - uses: actions/upload-artifact@v4
