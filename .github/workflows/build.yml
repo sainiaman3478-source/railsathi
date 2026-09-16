@@ -13,26 +13,50 @@ jobs:
         with:
           flutter-version: '3.22.0'
 
-      - name: Recreate Android Properly
+      - name: Force Android Manifest
         run: |
           rm -rf android
-          flutter create .  --platforms=android
-          cat android/app/src/main/AndroidManifest.xml
-
-      - name: Add Internet Permission
-        run: |
-          python3 -c "
+          flutter create. --platforms=android
+          python3 << 'PY'
           import pathlib
           p = pathlib.Path('android/app/src/main/AndroidManifest.xml')
-          t = p.read_text()
-          if 'android.permission.INTERNET' not in t:
-              t = t.replace('<application', '<uses-permission android:name=\"android.permission.INTERNET\" />\n <uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />\n <application')
-              p.write_text(t)
+          # Force write a clean manifest with INTERNET
+          manifest = '''<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+              <application
+                  android:label="railsathi"
+                  android:name="${applicationName}"
+                  android:icon="@mipmap/launcher_icon"
+                  android:usesCleartextTraffic="true">
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true"
+                      android:launchMode="singleTop"
+                      android:theme="@style/LaunchTheme"
+                      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+                      android:hardwareAccelerated="true"
+                      android:windowSoftInputMode="adjustResize">
+                      <meta-data android:name="io.flutter.embedding.android.NormalTheme" android:resource="@style/NormalTheme"/>
+                      <intent-filter android:autoVerify="true">
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
+                      </intent-filter>
+                  </activity>
+                  <meta-data android:name="flutterEmbedding" android:value="2"/>
+              </application>
+          </manifest>'''
+          p.write_text(manifest)
+          print("MANIFEST WRITTEN:")
           print(p.read_text())
-          "
+          PY
 
       - run: flutter pub get
       - run: flutter build apk --release
+      - name: Check Permissions in APK
+        run: |
+          $ANDROID_HOME/build-tools/33.0.2/aapt dump permissions build/app/outputs/flutter-apk/app-release.apk
+
       - uses: actions/upload-artifact@v4
         with:
           name: railsathi-apk
