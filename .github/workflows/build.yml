@@ -16,8 +16,8 @@ jobs:
       - name: Recreate Android Properly
         run: |
           rm -rf android
-          flutter create --platforms=android --project-name railsathi.
-          ls -l android/app/src/main/AndroidManifest.xml
+          flutter create . --platforms=android
+          cat android/app/src/main/AndroidManifest.xml
 
       - name: Add Internet Permission
         run: |
@@ -28,7 +28,6 @@ jobs:
           if 'android.permission.INTERNET' not in t:
               t = t.replace('<application', '<uses-permission android:name=\"android.permission.INTERNET\" />\n <uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />\n <application')
               p.write_text(t)
-          print('--- FINAL MANIFEST ---')
           print(p.read_text())
           "
 
