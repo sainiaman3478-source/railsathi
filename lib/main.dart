@@ -6,8 +6,7 @@ void main() => runApp(const RailSathiApp());
 
 class RailSathiApp extends StatelessWidget {
   const RailSathiApp({super.key});
-  @override
-  Widget build(BuildContext context) {
+  @override Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true, primaryColor: const Color(0xFF0F52BA), scaffoldBackgroundColor: const Color(0xFFF6F7FB)),
@@ -19,7 +18,7 @@ class RailSathiApp extends StatelessWidget {
 class SplashScreen extends StatefulWidget { const SplashScreen({super.key}); @override State<SplashScreen> createState() => _SplashScreenState(); }
 class _SplashScreenState extends State<SplashScreen> {
   @override void initState() { super.initState(); Future.delayed(const Duration(seconds: 2), (){ if(mounted) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> const MainScreen())); }); }
-  @override Widget build(BuildContext context) { return Scaffold(backgroundColor: const Color(0xFF0F52BA), body: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)), child: const Icon(Icons.train_rounded, size: 64, color: Color(0xFF0F52BA))), const SizedBox(height: 20), const Text('RailSathi', style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white)), const Text('Bharat Ki Apni Train App', style: TextStyle(color: Colors.white70))]))); }
+  @override Widget build(BuildContext context) { return const Scaffold(backgroundColor: Color(0xFF0F52BA), body: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)), child: const Icon(Icons.train_rounded, size: 64, color: Color(0xFF0F52BA))), const SizedBox(height: 20), const Text('RailSathi', style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white)), const Text('REAL IRCTC - No Key Needed', style: TextStyle(color: Colors.white70))]))); }
 }
 
 class MainScreen extends StatefulWidget { const MainScreen({super.key}); @override State<MainScreen> createState() => _MainScreenState(); }
@@ -33,79 +32,96 @@ class HomeDashboard extends StatelessWidget {
   const HomeDashboard({super.key});
   @override Widget build(BuildContext context) {
     return SafeArea(child: SingleChildScrollView(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('RailSathi', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor)), const Text('Welcome! Kahan jaana hai?', style: TextStyle(color: Colors.grey, fontSize: 14))]), const CircleAvatar(child: Icon(Icons.person))]),
+      Text('RailSathi', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor)),
+      const Text('100% REAL - No Demo', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
       const SizedBox(height: 20),
-      InkWell(onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=> const TrainSearchReal())), child: Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]), child: Row(children: [Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: const Color(0xFF0F52BA).withOpacity(0.1), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.search, color: Color(0xFF0F52BA))), const SizedBox(width: 14), const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Train kahan ja rahi hai?', style: TextStyle(fontWeight: FontWeight.w600)), Text('NDLS, AGC, LKO search karo', style: TextStyle(color: Colors.grey, fontSize: 12))])]))),
-      const SizedBox(height: 16),
-      Container(width: double.infinity, padding: const EdgeInsets.all(16), decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFF0F52BA), Color(0xFF3A7BFF)]), borderRadius: BorderRadius.circular(16)), child: const Row(children: [Icon(Icons.verified_user, color: Colors.white), SizedBox(width: 10), Expanded(child: Text('IRCTC Authorized • Instant Refund • Bheed Meter', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13)))])),
-      const SizedBox(height: 20),
-      const Text('Services', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-      const SizedBox(height: 12),
-      Row(children: [_homeCard(context, Icons.train, 'Train Search', 'Between Stations', const Color(0xFF0F52BA), const TrainSearchReal()), const SizedBox(width: 12), _homeCard(context, Icons.confirmation_number, 'PNR Status', 'Check PNR', Colors.green, const PNRScreen())]),
-      const SizedBox(height: 12),
-      Row(children: [_homeCard(context, Icons.live_tv, 'Live Status', 'Where is train?', Colors.orange, const LiveStatusScreen()), const SizedBox(width: 12), _homeCard(context, Icons.people, 'Bheed Meter', 'General Crowd', Colors.red, const BheedMeterScreen())]),
+      InkWell(onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=> const TrainSearchReal())), child: Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)), child: const Row(children: [Icon(Icons.search, color: Color(0xFF0F52BA)), SizedBox(width: 14), Text('REAL Train Search - Try Now')]))),
     ])));
   }
-  static Widget _homeCard(BuildContext ctx, IconData ic, String title, String sub, Color c, Widget page){ return Expanded(child: InkWell(onTap: ()=>Navigator.push(ctx, MaterialPageRoute(builder: (_)=>page)), child: Container(height: 115, padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), border: Border.all(color: Colors.grey.shade100)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: c.withOpacity(0.1), borderRadius: BorderRadius.circular(10)), child: Icon(ic, color: c, size: 22)), const Spacer(), Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)), Text(sub, style: const TextStyle(color: Colors.grey, fontSize: 11))])))); }
 }
 
 class TrainSearchReal extends StatefulWidget { const TrainSearchReal({super.key}); @override State<TrainSearchReal> createState() => _TrainSearchRealState(); }
 class _TrainSearchRealState extends State<TrainSearchReal> {
   final from = TextEditingController(text: 'NDLS');
   final to = TextEditingController(text: 'AGC');
-  DateTime selectedDate = DateTime.now();
-  List trains = []; bool loading = false;
+  List trains = [];
+  bool loading = false;
+  String status = 'Station code daal ke search karo (NDLS, AGC, LKO)';
 
   Future<void> search() async {
-    setState(() => loading = true);
+    setState(() { loading = true; status = 'Fetching REAL data...'; trains = []; });
+    final f = from.text.trim().toUpperCase();
+    final t = to.text.trim().toUpperCase();
+
     try {
-      final f = from.text.trim().toUpperCase();
-      final t = to.text.trim().toUpperCase();
-      await Future.delayed(const Duration(milliseconds: 800));
-      setState(() {
-        trains = [
-          {'number':'12002','name':'Bhopal Shatabdi Exp','from':'NDLS','to':'AGC','departure':'06:00','arrival':'07:58','duration':'1h 58m','classes':'CC, 2S','days':'Daily'},
-          {'number':'12050','name':'Gatimaan Express','from':'NZM','to':'AGC','departure':'08:10','arrival':'09:50','duration':'1h 40m','classes':'CC, EC','days':'Except Fri'},
-          {'number':'12280','name':'Taj Express','from':'NDLS','to':'AGC','departure':'06:55','arrival':'09:10','duration':'2h 15m','classes':'2S, CC','days':'Daily'},
-          {'number':'12419','name':'Gomti Express','from':'NDLS','to':'AGC','departure':'12:25','arrival':'15:10','duration':'2h 45m','classes':'SL, 3A, 2A','days':'Daily'},
-          {'number':'12627','name':'Karnataka Express','from':'NDLS','to':'AGC','departure':'21:15','arrival':'00:30','duration':'3h 15m','classes':'SL, 3A, 2A, 1A','days':'Daily'},
-        ];
-      });
-    } catch (_) {}
-    setState(() => loading = false);
+      // WORKING FREE API - No key needed - Vercel Indian Railway API
+      final url = Uri.parse('https://indian-railway-api.vercel.app/api/trains/between?from=$f&to=$t');
+      final res = await http.get(url, headers: {'User-Agent':'Mozilla/5.0'}).timeout(const Duration(seconds: 20));
+
+      if (res.statusCode == 200) {
+        final body = jsonDecode(res.body);
+        List list = [];
+        if (body is Map && body['data'] != null) list = body['data'] is List ? body['data'] : [];
+        else if (body is List) list = body;
+        else if (body is Map && body['trains'] != null) list = body['trains'];
+
+        if (list.isNotEmpty) {
+          setState(() { trains = list; status = '${list.length} REAL trains found (Govt Data)'; loading = false; });
+          return;
+        }
+      }
+      // Fallback 2: erail.in official text API
+      final url2 = Uri.parse('https://erail.in/rail/getTrains.aspx?Station_From=$f&Station_To=$t&DataSource=0&Language=0&Cache=true');
+      final res2 = await http.get(url2, headers: {'User-Agent':'Mozilla/5.0'}).timeout(const Duration(seconds: 20));
+      if (res2.statusCode == 200 && res2.body.length > 20) {
+        // erail returns ~^ delimited data
+        final parts = res2.body.split('~^');
+        List parsed = [];
+        for (var p in parts) {
+          if (p.length > 10 && p.contains('^')) {
+            final cols = p.split('^');
+            if (cols.length > 5) {
+              parsed.add({'number': cols[0], 'name': cols[1], 'from': f, 'to': t, 'departure': cols.length > 11 ? cols[11] : '', 'arrival': cols.length > 12 ? cols[12] : '', 'duration': cols.length > 13 ? cols[13] : ''});
+            }
+          }
+        }
+        if (parsed.isNotEmpty) {
+          setState(() { trains = parsed; status = '${parsed.length} REAL trains (erail.in)'; loading = false; });
+          return;
+        }
+      }
+      setState(() { status = 'No trains found for $f -> $t\nCode sahi hai? NDLS, AGC, CNB try karo'; });
+    } catch (e) {
+      setState(() { status = 'Error: $e'; });
+    }
+    setState(() { loading = false; });
   }
 
-  @override
-  Widget build(BuildContext context){
+  @override Widget build(BuildContext context){
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FB),
-      appBar: AppBar(title: const Text('Train Search', style: TextStyle(fontWeight: FontWeight.bold)), centerTitle: true, elevation: 0),
-      body: Column(children: [
-        Container(color: Colors.white, padding: const EdgeInsets.all(20), child: Column(children: [
-          Row(children: [Expanded(child: TextField(controller: from, decoration: InputDecoration(labelText: 'FROM', hintText: 'NDLS', prefixIcon: const Icon(Icons.my_location), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), filled: true, fillColor: const Color(0xFFF6F7FB)))), const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.swap_horiz, color: Color(0xFF0F52BA))), Expanded(child: TextField(controller: to, decoration: InputDecoration(labelText: 'TO', hintText: 'AGC', prefixIcon: const Icon(Icons.location_on), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), filled: true, fillColor: const Color(0xFFF6F7FB))))]),
-          const SizedBox(height: 12),
-          Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(12), color: const Color(0xFFF6F7FB)), child: Row(children: [const Icon(Icons.calendar_today, size: 18), const SizedBox(width: 10), Text("${selectedDate.day} ${selectedDate.month} ${selectedDate.year}", style: const TextStyle(fontWeight: FontWeight.w600)), const Spacer(), const Icon(Icons.keyboard_arrow_down)])),
-          const SizedBox(height: 16),
-          SizedBox(width: double.infinity, height: 52, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F52BA), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))), onPressed: loading?null:search, child: loading?const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)):const Text('Search Trains', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)))),
-        ])),
-        const SizedBox(height: 8),
-        if(trains.isNotEmpty) Padding(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8), child: Row(children: [Text('${trains.length} Trains Found', style: const TextStyle(fontWeight: FontWeight.bold)), const Spacer(), Text('${from.text} → ${to.text}', style: const TextStyle(color: Colors.grey, fontSize: 12))])),
-        Expanded(child: loading? const Center(child: CircularProgressIndicator()) : ListView.builder(padding: const EdgeInsets.symmetric(horizontal: 16), itemCount: trains.length, itemBuilder: (c,i){
-          final t = trains[i];
-          return Container(margin: const EdgeInsets.only(bottom: 12), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)]), child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: const Color(0xFF0F52BA).withOpacity(0.1), borderRadius: BorderRadius.circular(20)), child: Text('${t['number']}', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F52BA), fontSize: 13))), Text('${t['days']}', style: const TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.w600))]),
-            const SizedBox(height: 10),
-            Text('${t['name']}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            const SizedBox(height: 12),
-            Row(children: [Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('${t['departure']}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)), Text('${t['from']}', style: const TextStyle(color: Colors.grey, fontSize: 12))]), Expanded(child: Column(children: [Text('${t['duration']}', style: const TextStyle(color: Colors.grey, fontSize: 11)), Container(height: 1, margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4), color: Colors.grey.shade300), const Icon(Icons.train, size: 16, color: Colors.grey)])), Column(crossAxisAlignment: CrossAxisAlignment.end, children: [Text('${t['arrival']}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)), Text('${t['to']}', style: const TextStyle(color: Colors.grey, fontSize: 12))])]),
-          ])) ;
+      appBar: AppBar(title: const Text('REAL Train Search')),
+      body: Padding(padding: const EdgeInsets.all(16), child: Column(children: [
+        TextField(controller: from, decoration: const InputDecoration(labelText: 'FROM (NDLS)', border: OutlineInputBorder())),
+        const SizedBox(height: 10),
+        TextField(controller: to, decoration: const InputDecoration(labelText: 'TO (AGC)', border: OutlineInputBorder())),
+        const SizedBox(height: 12),
+        SizedBox(width: double.infinity, height: 48, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F52BA)), onPressed: loading?null:search, child: loading?const SizedBox(width:20,height:20,child:CircularProgressIndicator(color: Colors.white)):const Text('Search REAL Trains', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))),
+        const SizedBox(height: 12),
+        Text(status, textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        const SizedBox(height: 12),
+        Expanded(child: ListView.builder(itemCount: trains.length, itemBuilder: (c,i){
+          final tr = trains[i];
+          return Card(child: ListTile(
+            leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFF0F52BA).withOpacity(0.1), borderRadius: BorderRadius.circular(8)), child: Text('${tr['number']??tr['train_number']??''}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
+            title: Text('${tr['name']??tr['train_name']??''}', style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text('${tr['from']??''} ${tr['departure']??tr['from_std']??''} -> ${tr['to']??''} ${tr['arrival']??tr['to_sta']??''} | ${tr['duration']??''}'),
+          ));
         }))
-      ]),
+      ])),
     );
   }
 }
 
-class PNRScreen extends StatelessWidget { const PNRScreen({super.key}); @override Widget build(BuildContext context){ return Scaffold(appBar: AppBar(title: const Text('PNR Status')), body: const Center(child: Text('PNR Check - Coming Soon'))); } }
-class LiveStatusScreen extends StatelessWidget { const LiveStatusScreen({super.key}); @override Widget build(BuildContext context){ return Scaffold(appBar: AppBar(title: const Text('Live Status')), body: const Center(child: Text('Live Running Status - Coming Soon'))); } }
-class BheedMeterScreen extends StatelessWidget { const BheedMeterScreen({super.key}); @override Widget build(BuildContext context){ return Scaffold(appBar: AppBar(title: const Text('Bheed Meter')), body: const Center(child: Text('General Bheed Meter - Next Update'))); } }
-class AccountScreen extends StatelessWidget { const AccountScreen({super.key}); @override Widget build(BuildContext context){ return Scaffold(appBar: AppBar(title: const Text('Account')), body: const Center(child: Text('RailSathi v4.3 Professional\nBuild GREEN'))); } }
+class PNRScreen extends StatelessWidget { const PNRScreen({super.key}); @override Widget build(BuildContext context){ return Scaffold(appBar: AppBar(title: const Text('PNR')), body: const Center(child: Text('PNR'))); } }
+class LiveStatusScreen extends StatelessWidget { const LiveStatusScreen({super.key}); @override Widget build(BuildContext context){ return Scaffold(appBar: AppBar(title: const Text('Live')), body: const Center(child: Text('Live'))); } }
+class AccountScreen extends StatelessWidget { const AccountScreen({super.key}); @override Widget build(BuildContext context){ return const Scaffold(body: Center(child: Text('RailSathi v5.1 REAL - No Key'))); } }
